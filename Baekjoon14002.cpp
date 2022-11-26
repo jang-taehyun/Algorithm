@@ -31,8 +31,6 @@ idea
 #include <iostream>
 using namespace std;
 
-int Max(int _x, int _y) { return _x > _y ? _x : _y; }
-
 int main()
 {
     // 수열의 크기 N
