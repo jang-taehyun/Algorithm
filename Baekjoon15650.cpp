@@ -11,7 +11,7 @@ using namespace std;
 int output[8];        // 수열 output
 bool isVisited[9];    // 숫자의 방문 여부 isVisited
 int n;                // 마지막 숫자 n
-int choose;           // 고를 숫자의 개수 m
+int choose;           // 고를 숫자의 개수 choose
 
 void DFS(int currentCount, int currentNumber)
 {
