@@ -1,86 +1,105 @@
+/*
+Problem : 스도쿠 판에 있는 숫자들의 정보가 주어질 때, 모든 빈칸이 채워진 모습을 출력해라.
+input : 스도쿠 판에 있는 숫자들의 정보
+output : 스도쿠 판이 완성된 모습
+
+idea
+- 스도쿠 판 중 비어있는 위치(0으로 입력된 위치)를 따로 저장한다.
+- 비어있는 위치에 1~9까지의 숫자를 집어넣고, 넣은 숫자가 가로, 세로열, 3*3 정사각형 내에 있는지 확인한다.(promising 조건)
+- 만약 집어넣은 숫자가 가로, 세로열, 3*3 정사각형 내에 없다면, 비어있는 다른 위치에 1~9까지의 숫자를 집어넣고 promising 조건을 확인한다.
+*/
 #include <iostream>
-#include <algorithm>
 #include <vector>
 using namespace std;
 
-vector<pair<int, int>>blank;
-bool finish = false;
+int Board[9][9];                            // 입력된 스도쿠 판
+vector<pair<int, int>> EmptyPosition;       // 비어있는 위치를 모아놓은 queue
+                                            // first : column 좌표, second : row 좌표
+int EmptyPositionCount;                     // 비어있는 위치의 개수
 
-//1~9 체크
-bool check(int a, int b, vector<vector<int>>& sudoku) {
-	//한줄 체크
-	for (int i = 0; i < 9; i++) {
-		if (sudoku[i][b] == sudoku[a][b] && i != a) return false; //행 확인
-		if (sudoku[a][i] == sudoku[a][b] && i != b) return false; //열 확인
-	}
+bool Promising(int CheckX, int CheckY)
+{
+    // 체크할 숫자
+    int CheckNumber = Board[CheckX][CheckY];
 
-	//3*3확인
-	int sa = (a / 3) * 3;
-	int sb = (b / 3) * 3;
-	for (int i = sa; i < sa + 3; i++) {
-		for (int j = sb; j < sb + 3; j++) {
-			if (i == a && j == b) continue;
-			if (sudoku[i][j] == sudoku[a][b]) return false; //겹치는거 존재
-		}
-	}
+    // column, row 확인
+    for (int i = 0; i < 9; i++)
+    {
+        if (Board[CheckX][i] == CheckNumber && i != CheckY)
+            return false;
+        if (Board[i][CheckY] == CheckNumber && i != CheckX)
+            return false;
+    }
 
-	//겹치는게 없다면 true반환
-	return true;
+    // 3*3 정사각형 확인
+    int StartX = (CheckX / 3) * 3;
+    int StartY = (CheckY / 3) * 3;
+    for (int i = StartX; i < StartX + 3; i++)
+    {
+        for (int j = StartY; j < StartY + 3; j++)
+        {
+            // 만약 집어넣은 칸이라면 다음 칸을 확인
+            if (i == CheckX && j == CheckY)
+                continue;
+
+            if (Board[i][j] == CheckNumber)
+                return false;
+        }
+    }
+
+    return true;
 }
 
-//backtracking 함수
-void backtracking(int n, vector<vector<int>>& sudoku) {
-	if (n == blank.size()) { //모든 칸 다 채움
-		finish = true;
-		return;
-	}
+void Bruteforce(int cnt)
+{
+    // 만약 비어있는 곳에 숫자를 모두 채워넣었다면, 완성된 스도쿠 판을 출력하고 프로그램 종료
+    if (cnt >= EmptyPositionCount)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+                cout << Board[i][j] << ' ';
+            cout << '\n';
+        }
 
-	//n번째 빈칸 좌표
-	int a = blank[n].first;
-	int b = blank[n].second;
+        exit(0);
+    }
 
-	for (int i = 1; i <= 9; i++) {
-		sudoku[a][b] = i; //1~9넣어보기
-		if (check(a, b, sudoku)) {
-			backtracking(n + 1, sudoku);
-		};
+    // queue에서 비어있는 좌표를 하나 꺼내서 1~9까지 숫자 중 하나를 넣고, promising 조건을 확인한다.
+    int CurX = EmptyPosition[cnt].first;
+    int CurY = EmptyPosition[cnt].second;
+    for (int i = 1; i < 10; i++)
+    {
+        Board[CurX][CurY] = i;
+        if (Promising(CurX, CurY))
+            Bruteforce(cnt + 1);
+    }
 
-		if (finish) return; //스도쿠 완성 => 계속 리턴
-	}
-
-	sudoku[a][b] = 0; //못채우면 되돌리기
-	return;
+    // 못 채웠을 경우 원상복구
+    Board[CurX][CurY] = 0;
 }
 
-//solution함수
-vector<vector<int>> solution(vector<vector<int>> sudoku) {
-	//blank에 빈 공간 저장
-	for (int i = 0; i < 9; i++)
-		for (int j = 0; j < 9; j++)
-			if (sudoku[i][j] == 0)
-				blank.push_back(make_pair(i, j));
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
 
+    // 스도쿠 정보 입력
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            cin >> Board[i][j];
 
-	backtracking(0, sudoku);
-	return sudoku;
-}
+            if (!Board[i][j])
+                EmptyPosition.push_back(make_pair(i, j));
+        }
+    }
+    EmptyPositionCount = EmptyPosition.size();
 
-int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0); cout.tie(0);
+    // 완전 탐색을 통해 비어있는 곳에 숫자를 넣어 스도쿠 판 완성
+    Bruteforce(0);
 
-	//입력
-	vector<vector<int>>sudoku(9, vector<int>(9));
-	for (int i = 0; i < 9; i++)
-		for (int j = 0; j < 9; j++)
-			cin >> sudoku[i][j];
-
-	//문제 해결
-	auto output = solution(sudoku);
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			cout << output[i][j] << ' ';
-		}cout << '\n';
-	}
-	return 0;
+    return 0;
 }
