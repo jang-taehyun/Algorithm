@@ -8,8 +8,8 @@ typedef struct _point_
 } Purifier;
 
 int r, c, second;
-int cur_board[1000][1000] = {0, };
-int next_board[1000][1000] = {0, };
+int cur_board[50][50] = {0, };
+int next_board[50][50] = {0, };
 
 Purifier sTop = {0, 0};
 Purifier sBottom = {0, 0};
