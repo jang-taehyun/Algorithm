@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
 int main()
@@ -7,28 +6,41 @@ int main()
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    int len;
-    vector<int> arr, res;
-    int idx;
+    int len=0;
+    int arr[40000] = {0, };
+    int left, right, mid, input;
+    int res = 0;
     
     cin >> len;
-    
-    arr.resize(len, 0);
-    for(int i=0; i<len; ++i)
-        cin >> arr[i];
-    
     for(int i=0; i<len; ++i)
     {
-        if(!res.empty() && res[res.size() - 1] >= arr[i])
+        cin >> input;
+        
+        if(res && arr[res - 1] >= input)
         {
-            idx = lower_bound(res.begin(), res.end(), arr[i]) - res.begin();
-            res[idx] = arr[i];
+            left = 0;
+            right = res - 1;
+            while(left < right)
+            {
+                mid = (left + right) / 2;
+                
+                if(arr[mid] > input)
+                    right = mid;
+                else
+                    left = mid+1;
+            }
+            
+            arr[right] = input;
         }
         else
-            res.push_back(arr[i]);
+        {
+            arr[res] = input;
+            ++res;
+        }
+            
     }
     
-    cout << res.size();
+    cout << res;
     
     return 0;
 }
