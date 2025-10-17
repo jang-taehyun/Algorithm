@@ -1,0 +1,17 @@
+-- https://school.programmers.co.kr/learn/courses/30/lessons/276034
+-- 코드를 작성해주세요
+SELECT ID, EMAIL, FIRST_NAME, LAST_NAME
+FROM DEVELOPERS
+WHERE
+(
+    SELECT CODE
+    FROM SKILLCODES
+    WHERE NAME LIKE 'Python'
+) & SKILL_CODE
+OR
+(
+    SELECT CODE
+    FROM SKILLCODES
+    WHERE NAME LIKE 'C#'
+) & SKILL_CODE
+ORDER BY ID ASC
